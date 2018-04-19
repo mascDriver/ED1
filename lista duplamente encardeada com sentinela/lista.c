@@ -43,17 +43,15 @@ bool lista_vazia( Sentinela* l )
 Sentinela* lista_insere( Sentinela* l, Ponto* ponto )
 {
  Nodo *L = (Nodo*)malloc(sizeof(Nodo));
- 	//inserção para esquerda
- 	if(l->nItens>0){
- 		L->prox = l->cabeca;
- 		l->cabeca->ant = L;
- 		l->cabeca = L; 
- 	}
  	L->dado =ponto;
- 	//inserção para direita
  	if(l->nItens == 0){
  		l->cauda = L;
  		l->cabeca = L;
+ 	}
+ 	else if(l->nItens>0){
+ 		L->prox = l->cabeca;
+ 		l->cabeca->ant = L;
+ 		l->cabeca = L; 
  	}
  	else{
  		l->cabeca = L;
@@ -76,32 +74,30 @@ Nodo* elem = l->cabeca;
 
 /* imprime todos os elementos da lista em ordem - começa da cabeça da Sentinela */
 void lista_imprime_ordem( Sentinela* l ) {
-Nodo *tmp, *ultimo;
 
+	Nodo *tmp;
 	if(lista_vazia(l))
 		printf("%s: LISTA VAZIA!\n", __FUNCTION__);
 	else {
 		printf("(%s) EM ORDEM: ", __FUNCTION__);
 		tmp = l->cauda;
-		ultimo = l->cabeca;
 		while(tmp != NULL){
 			imprime_ponto(tmp->dado);
-			ultimo = tmp;
 			tmp = tmp->ant;
 		}
 		printf("\n\n");
-		printf("(%s) ORDEM INVERSA: ", __FUNCTION__);
-		while(ultimo != NULL){
-			imprime_ponto(ultimo->dado);
-			ultimo = ultimo->prox;
-		}
-		printf("\n");
 	}
 }
 
 /* imprime todos os elementos da lista em ordem inversa - começa da cauda da Sentinela */
 void lista_imprime_ordem_inv( Sentinela* l ) {
-	//TODO Implementar
+	Nodo *ultimo;
+	ultimo = l->cabeca;
+	printf("(%s) ORDEM INVERSA: ", __FUNCTION__);
+		while(ultimo != NULL){
+			imprime_ponto(ultimo->dado);
+			ultimo = ultimo->prox;
+		}
 }
 
 /* remove da lista o elemento que contem o Ponto.
@@ -142,11 +138,12 @@ Nodo *r = lista_busca(l,p);
    ATENÇÃO: não libera memória do ponto. */
 void lista_destroi( Sentinela* l )
 {
-/*	Sentinela* elem = l;
-	while( lista_vazia(elem) == false ){
-		Lista* t = elem->prox;
+	Nodo* elem = l->cabeca;
+	while(elem!=NULL){
+		Nodo* t = elem->prox;
 		free(elem);
 		elem = t;
 	}
-*/
+	free(l);
+
 }
