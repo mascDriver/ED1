@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,7 +7,7 @@
 //system("clear");
 
 struct ponto {
-	float x;
+	int x;
 };
 
 /* define o tipo Ponto, derivado da 'struct ponto' */
@@ -14,6 +15,7 @@ typedef struct ponto Ponto;
 
 struct nodo {
 	Ponto* dado;        /* ponteiro para o dado da lista Ponto */
+	float valor;
 	struct nodo *prox; /* ponteiro para o proximo elemento */
 	struct nodo *ant;  /* ponteiro para o elemento anterior */
 };
@@ -26,20 +28,15 @@ struct sentinela {
 };
 typedef struct sentinela Sentinela;
 
-
-bool compara_ponto(Ponto *a, Ponto *b);
-void imprime_ponto(Ponto *p);
-Sentinela* lista_remove( Sentinela* l, Ponto* p );
-Sentinela* lista_insere(Sentinela *l,Ponto *ponto);
-Ponto* ponto_cria(float x);
+void lista_insere(Sentinela *l,float x);
 Sentinela* lista_cria(void);
 bool lista_vazia( Sentinela* l );
 int inserirelemento();
-Sentinela* lista_remove( Sentinela* l, Ponto* p );
-void imprimirelemento();
-Sentinela*  insertrand(Sentinela* l, Ponto* ponto);
-int isort();
-int ssort();
+Sentinela* lista_remove( Sentinela* l, float p );
+void imprimirelemento(Sentinela* l);
+void  insertrand(Sentinela* l, float x);
+Sentinela* isort(Sentinela *l);
+Sentinela* ssort(Sentinela *l);
 int qusort();
 int msort();
 bool verificacao(char continuar[]);
@@ -52,11 +49,10 @@ int main(int argc, char const *argv[]){
 void menu(){
 	srand(time(NULL));
 	Sentinela *sentinela;
-	Ponto *ponto;
 	sentinela = lista_cria();
 	char continuar[3];
 	int n,i;
-	float k,x;
+	int k,x;
 	do{
 		system("clear");
 		printf("Digite\n1 - inserir elemento\n2 - excluir elemento\n3 - imprimir\n4 - fazer inserção de 100 elementos aleatórios\n5 - Ordenar via Insert Sort\n6 - Ordenar via Selection sort\n7 - Ordenar via Quick Sort\n8 - Ordenar via Merge sort\n");
@@ -70,31 +66,28 @@ void menu(){
 			do{
 				case 1:
 					printf("Deseja inserir qual número?\n");
-					scanf("%f",&x);
-					ponto = ponto_cria(x);
-					sentinela = lista_insere(sentinela, ponto);
+					scanf("%d",&x);
+					lista_insere(sentinela,x);
 					break;
 				case 2:
 					printf("Qual número deseja excluir?\n");
-					scanf("%f",&k);
-					ponto = ponto_cria(k);
-					sentinela = lista_remove(sentinela,ponto);
+					scanf("%d",&k);
+					sentinela = lista_remove(sentinela,k);
 					break;
 				case 3:
 					imprimirelemento(sentinela);
 					break;
 				case 4:
 					for(i=0;i<100;i++){
-						k = (rand()%100)/3;
-						ponto = ponto_cria(k);
-						insertrand(sentinela,ponto);
+						k = (rand()%100);
+						insertrand(sentinela,k);
 					}
 					break;
 				case 5:
-					isort();
+					sentinela = isort(sentinela);
 					break;
 				case 6:
-					ssort();
+					ssort(sentinela);
 					break;
 				case 7:
 					qusort();
@@ -113,11 +106,6 @@ void menu(){
 }
 
 
-Ponto* ponto_cria(float x){
-	Ponto *ponto = (Ponto*) malloc(sizeof(Ponto));
-	ponto->x = x;
-	return ponto;
-}
 
 
 Sentinela* lista_cria(void)
@@ -136,10 +124,10 @@ bool lista_vazia( Sentinela* l )
 	return (l == NULL);
 }
 
-Nodo* lista_busca( Sentinela* l, Ponto* p ) {
+Nodo* lista_busca( Sentinela* l, float p) {
 Nodo* elem = l->inicio;
 	while(elem != NULL) {
-		if(compara_ponto(elem->dado, p))
+		if(elem->valor, p)
 				return elem;
 		elem = elem->prox;
 	}
@@ -147,29 +135,58 @@ Nodo* elem = l->inicio;
 	return NULL;
 }
 
-Sentinela* lista_insere( Sentinela* l, Ponto *ponto)
+void lista_insere( Sentinela* l, float x)
 {
 	
  	Nodo *L = (Nodo*)malloc(sizeof(Nodo));
- 	L->dado =ponto;
+ 	L->valor = x;
  	if(l->nItens == 0){
  		l->fim = L;
  		l->inicio = L;
- 	}
- 	else if(l->nItens>0){
- 		L->prox = l->inicio;
- 		l->inicio->ant = L;
- 		l->inicio = L; 
+ 		l->inicio->prox = NULL;
+ 		l->fim->ant = NULL;
+ 		l->inicio->ant = NULL;
+ 		l->fim->prox = NULL;
  	}
  	else{
+ 		L->ant = l->fim;
+ 		l->fim->prox = L;
+ 		l->fim = L; 
+ 		l->fim->prox = NULL;
+ 	}
+ 	
+ 	l->nItens++;
+}
+void  insertrand(Sentinela* l,float x){
+	
+ 	Nodo *L = (Nodo*)malloc(sizeof(Nodo));
+ 	L->valor = x;
+ 	if(l->nItens == 0){
+ 		l->fim = L;
  		l->inicio = L;
+ 		l->inicio->prox = NULL;
+ 		l->fim->ant = NULL;
  		l->inicio->ant = NULL;
+ 		l->fim->prox = NULL;
+ 	}
+ 	else{
+ 		L->ant = l->fim;
+ 		l->fim->prox = L;
+ 		l->fim = L; 
+ 		l->fim->prox = NULL;
  	}
  	l->nItens++;
- 	return l;
+}
+void imprimirelemento(Sentinela* l){
+	Nodo *tmp = l->inicio;
+	while(tmp!= NULL){
+		printf("(%.2f) ", tmp->valor);
+		tmp = tmp->prox;
+	}
+	printf("\n\n");
 }
 
-Sentinela* lista_remove( Sentinela* l, Ponto* p ) {
+Sentinela* lista_remove( Sentinela* l, float p ) {
 	Nodo *r = lista_busca(l,p);
 	
 	printf("antes de excluir %d\n",l->nItens );
@@ -200,73 +217,81 @@ Sentinela* lista_remove( Sentinela* l, Ponto* p ) {
 }
 
 bool verificacao(char continuar[]){
-	if(continuar[0]=='s'){
+	if(continuar[0]!='n'){
 		return true;	
 	}
 	else{
 		return false;
 	}
 }
-int inserirelemento(){
-	return 0;
-}
-
-void imprime_ponto(Ponto *p) {
-	printf(" (%.2f)", p->x);
-}
-
-bool compara_ponto(Ponto *a, Ponto *b) {
-	/* primeiro faz typecast dos ponteiros para Ponto */
-	Ponto        *p1 = (Ponto *) a;
-	Ponto        *p2 = (Ponto *) b;
-
-	/* compara os pontos aqui */
-	if (p1->x == p2->x)
-		return true;
-
-	return false;
-}
-
-
-void imprimirelemento(Sentinela *l){
-	Nodo *tmp;
-	if(lista_vazia(l))
-		printf("%s: LISTA VAZIA!\n", __FUNCTION__);
-	else {
-		printf("(%s) EM ORDEM: ", __FUNCTION__);
-		tmp = l->fim;
-		while(tmp != NULL){
-			imprime_ponto(tmp->dado);
-			tmp = tmp->ant;
-		}
-		printf("\n\n");
+Sentinela* isort(Sentinela *l){
+	if(l->nItens<=1){
+		printf("A lista está vazia\n");
+		return l;
 	}
+	int i=0;
+	printf("%d\n",l->nItens);
+	Nodo *prox=l->inicio->prox, *ant=prox->ant;
+
+	while(prox!=NULL){
+		ant=prox->ant;
+		printf("%p\n", ant);
+		while(ant!=NULL){
+			if(ant->valor > prox->valor){
+				if(l->nItens==2){
+					ant->prox = NULL;
+					ant->ant = prox;
+					prox->prox = ant;
+					prox -> ant = NULL;
+					l->inicio = ant;
+					l->fim = prox;
+				}
+				else if(ant->ant ==NULL && prox -> prox != NULL){
+					prox->prox->ant = ant;
+					ant -> prox = prox->prox;
+					ant->ant = prox;
+					prox->prox = ant;
+					prox->ant = NULL;
+					l->inicio = prox;
+				}
+				else if(ant->ant!=NULL && prox->prox==NULL){
+					ant->ant->prox = prox;
+					prox->ant = ant ->ant;
+					ant->prox = NULL;
+					ant->ant = prox;	
+					prox->prox = ant;
+					l->fim = ant;
+				}
+				else if(ant -> ant !=NULL && prox ->prox != NULL){
+					prox->prox->ant=ant;
+					ant->ant->prox=prox;
+					prox->ant=ant->ant;
+					ant->prox=prox->prox;
+					ant->ant=prox;
+					prox->prox=ant;
+				}
+			}
+			ant = ant->ant;
+		}
+		prox=prox->prox;
+	}
+	return l;
 }
-Sentinela*  insertrand(Sentinela* l, Ponto* ponto){
-	
- 	Nodo *L = (Nodo*)malloc(sizeof(Nodo));
- 	L->dado =ponto;
- 	if(l->nItens == 0){
- 		l->fim = L;
- 		l->inicio = L;
- 	}
- 	else if(l->nItens>0){
- 		L->prox = l->inicio;
- 		l->inicio->ant = L;
- 		l->inicio = L; 
- 	}
- 	else{
- 		l->inicio = L;
- 		l->inicio->ant = NULL;
- 	}
- 	l->nItens++;
- 	return l;
-}
-int isort(){
-	return 0;
-}
-int ssort(){
-	return 0;
+Sentinela* ssort(Sentinela *l){
+	Nodo *atual = l->inicio, *prox = atual->prox,*min;
+	while(atual!=NULL){
+		prox = atual->prox;
+		min = prox;
+		while(prox!=NULL){
+			if(prox->valor < min->valor)
+				min = prox;
+			prox = prox->prox;
+
+		}
+		atual = atual->prox;
+	}
+
+	return l;
 }
 int qusort(){
 	return 0;
@@ -274,4 +299,3 @@ int qusort(){
 int msort(){
 	return 0;
 }
-
